@@ -10,16 +10,20 @@ define("OFF",	FALSE);
 // ***************
 
 
-$handle = @fopen($input, "r");
+$handleIn 	= @fopen($input, "r");
+$handleOut 	= @fopen($output, 'w');
 
-if($handle == FALSE)
+if($handleIn == FALSE)
 	die("ERROR - Input file not found!\n\n");
 
-file_put_contents($output, "");
+if($handleOut == FALSE)
+	die("ERROR - Couldn't create output file!\n\n");
 
-$delimiter = detectDelimiter($handle);
+fwrite($handleOut, "");
 
-$layers = countLinesWithZ($handle, $delimiter);
+$delimiter = detectDelimiter($handleIn);
+
+$layers = countLinesWithZ($handleIn, $delimiter);
 
 if(!$layers)
 	die("ERROR - No layers found!" . $delimiter . $delimiter);
@@ -39,9 +43,9 @@ $layer = 0;
 echo "Processing: ";
 
 // Start the actual parse
-rewind($handle);
-while(!feof($handle) && @$l != "Stop") {
-	$l = stream_get_line($handle, 0, $delimiter);
+rewind($handleIn);
+while(!feof($handleIn) && @$l != "Stop") {
+	$l = stream_get_line($handleIn, 0, $delimiter);
 	// Skip the comment lines and empty lines
 	if(substr($l, 0, 1) == ";" || trim($l) == "")
 		continue;
@@ -59,7 +63,7 @@ while(!feof($handle) && @$l != "Stop") {
 
 		// Process the line
 		if($lineTypeFlags == array(FALSE, FALSE, FALSE, FALSE)) {	// If there's nothing to do with the
-			file_put_contents($output, $l.$delimiter, FILE_APPEND);	// line, don't touch it, output as-is
+			fwrite($handleOut, $l.$delimiter);						// line, don't touch it, output as-is
 		} else {
 			$buffer = "";
 			$l = explode(" ", $l);
@@ -90,7 +94,7 @@ while(!feof($handle) && @$l != "Stop") {
 					$buffer .= $delimiter;
 				}
 
-				file_put_contents($output, $buffer, FILE_APPEND);
+				fwrite($handleOut, $buffer);
 			
 			} elseif($lineTypeFlags[IS_Z]) {		// If it's a Z move
 				++$layer;
@@ -134,12 +138,12 @@ while(!feof($handle) && @$l != "Stop") {
 					$buffer .= "G4 P" . $peelPause . $delimiter;
 				}
 
-				file_put_contents($output, $buffer, FILE_APPEND);
+				fwrite($handleOut, $buffer);
 
 				echo progressBar($layer, $layers, "30");
 			} else {								// If it's anything else, copy it
 				if(!$lineTypeFlags[HAS_E])			// Unless it's messing with the E axis
-					file_put_contents($output, implode(" ",$l).$delimiter, FILE_APPEND);
+					fwrite($handleOut, implode(" ",$l).$delimiter);
 			}
 		}
 	}
@@ -148,5 +152,9 @@ while(!feof($handle) && @$l != "Stop") {
 // Add the ending G code block
 echo "\nDone.\n";
 echo "Adding the G-code post-script code.\n";
-file_put_contents($output, $endCode . $delimiter, FILE_APPEND);
+fwrite($handleOut, $endCode . $delimiter);
+
+// Close the file handles
+fclose($handleIn);
+fclose($handleOut);
 

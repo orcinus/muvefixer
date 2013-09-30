@@ -1,6 +1,5 @@
 #!/usr/bin/php
 <?
-
 $startTime = time();
 ini_set("auto_detect_line_endings", true);
 ini_set("max_exexution_time", 0);
@@ -35,4 +34,5 @@ require_once("lib/parser.php");
 $endTime = time();
 echo "Job finished in " . ($endTime - $startTime) . " seconds.\n\n"; die();
 
+exit(0);
 ?>
