@@ -1,3 +1,24 @@
+<?
+error_reporting(E_ALL);
+session_start();
+
+if(!isset($_SESSION["id"]))
+  $_SESSION["id"] = uniqid();
+
+if($_FILES)
+  if($_FILES["input"]["error"] > 0) {
+    echo "Error!";
+  } else {
+    if(!file_exists('upload'))
+      mkdir('upload', 0777, TRUE);
+    if(!file_exists('upload/'.$_SESSION["id"]))
+      mkdir('upload/'.$_SESSION["id"], 0777, TRUE);
+    move_uploaded_file($_FILES["input"]["tmp_name"], "upload/" . $_SESSION["id"] . "/" . $_FILES["input"]["name"]);
+    $_SESSION["upload_file"] = $_FILES["input"]["name"];
+    $_SESSION["upload_timestamp"] = time();
+  }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -51,10 +72,10 @@
       <div id="step1" class="enabled">
         <h4><span class="numberCircle">1</span> Upload Slic3r File</h4>
         <div class="step-button">
-          <button id="upload" type="button" class="btn btn-disabled">Upload</button>
+          <button id="upload" type="button" class="btn btn-default" disabled>Upload</button>
         </div>
         <div class="upload-button">
-          <form name="uploadform" action="index.php" method="post">
+          <form enctype="multipart/form-data" name="uploadform" action="index.php" method="post">
             <input name="input" type="file" class="filestyle" data-classButton="btn btn-primary" data-input="true" data-icon="false" data-buttonText="Choose file" data-classInput="input-small">
           </form>
         </div>
@@ -63,7 +84,7 @@
       <div id="step2" class="disabled">
         <h4><span class="numberCircle">2</span> Pre-check</h4>
         <div class="step-button">
-          <button id="check" type="button" class="btn btn-disabled">Check</button>
+          <button id="check" type="button" class="btn btn-default" disabled>Check</button>
         </div>
         <div class="progress progress-striped active">
           <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
@@ -75,7 +96,7 @@
       <div id="step3" class="disabled">
         <h4><span class="numberCircle">3</span> Process &amp; Save</h4>
         <div class="step-button">
-          <button id="process" type="button" class="btn btn-disabled">Process</button>
+          <button id="process" type="button" class="btn btn-default" disabled>Process</button>
         </div>
         <div class="progress progress-striped active">
           <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
@@ -96,9 +117,13 @@
     <script>
       $(':file').change(function() {
         if($(':file').filestyle('input')) {
-          $('#upload').removeClass('btn-disabled').addClass('btn-primary');
+          $('#upload').removeClass('btn-default')
+                      .addClass('btn-primary')
+                      .removeProp('disabled');
         } else {
-          $('#upload').addClass('btn-disabled').removeClass('btn-primary');
+          $('#upload').removeClass('btn-primary')
+                      .addClass('btn-default')
+                      .addProp('disabled');
         }
       });
 
@@ -107,6 +132,16 @@
           $('[name=uploadform]').submit();
         }
       });
+
+      <? if(isset($_SESSION["upload_file"])): ?>
+      $('#step2').removeClass('disabled');
+      $('#check').removeClass('btn-default')
+                 .addClass('btn-primary')
+                 .removeProp('disabled')
+                 .click(function() {
+                    alert("foo");
+                 });
+      <? endif ?>
     </script>
   </body>
 </html>
