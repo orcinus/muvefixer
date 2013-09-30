@@ -77,7 +77,7 @@ function explodePath($path) {
 
 // Progress bar generator
 function progressBar($current, $total, $length) {
-	echo "[0%";
+	echo " [0%";
 	echo "\033[" . ($length + 2) . "C";
 	echo " 100%]";
 	echo "\033[" . ($length + 7) . "D";
@@ -89,5 +89,5 @@ function progressBar($current, $total, $length) {
 			echo "\033[1D";
 		}
 
-	echo "\033[" . ($position + 4). "D";
+	echo "\033[" . ($position + 5). "D";
 }

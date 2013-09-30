@@ -1,0 +1,20 @@
+; This is a sample fixer configuration file
+; based on the original mUVe G-code fixer defaults
+
+[peel]
+peelHeight = 2        ; peel height               [mm]
+peelPause = 500       ; pause after a peel        [ms]
+peelLiftSpeed = 64    ; peel lift speed           [mm/min]
+peelDropSpeed = 64    ; peel drop speed           [mm/min]
+
+[jump]
+jumpSpeed = 5400      ; default jump move speed   [mm/min]
+
+[base]
+basePause = 10000     ; base peel settle time     [ms]
+
+[laser]
+laserOnCode = "M106"  ; laser on G-code
+laserOffCode = "M107" ; laser off G-code
+laserPower = 255      ; laser power (0-255)
+syncForce = true	  ; ensure laser code sync
